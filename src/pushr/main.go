@@ -51,6 +51,7 @@ func main() {
 
 	if len(list) == 0 {
 		log.Print("No serial ports found.\n")
+		return
 	}
 
 	ports := []io.ReadWriteCloser{}
@@ -62,6 +63,7 @@ func main() {
 
 	if len(ports) == 0 {
 		log.Print("No serial ports could be opened.\n")
+		return
 	}
 
 	reader := bufio.NewReader(os.Stdin)

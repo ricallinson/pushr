@@ -11,4 +11,4 @@ A command line utility to push characters to a serial port.
 
     ./bin/pushr
     > Message to push
-    > Aother meeage to push
+    > Another message to push
