@@ -9,4 +9,6 @@ A command line utility to push characters to a serial port.
 
 ## Run
 
-    ./bin/pushr "Message to push"
+    ./bin/pushr
+    > Message to push
+    > Aother meeage to push

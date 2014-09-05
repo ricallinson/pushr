@@ -4,24 +4,31 @@ import (
 	"flag"
 	"github.com/tarm/goserial"
 	"log"
-	"strings"
+	// "strings"
+	"bufio"
+	// "fmt"
+	"os"
+	"io"
 )
 
-func pushMsg(p string, msg string) {
+func openPort(p string) io.ReadWriteCloser {
 	// Open the serial port.
 	c := &serial.Config{Name: p, Baud: 9600}
 	s, err := serial.OpenPort(c)
 	if err != nil {
 		log.Print(err)
-		return
+		return nil
 	}
-	// Send the message.
-	n, err := s.Write([]byte(msg))
+	return s
+}
+
+func sendMsg(s io.ReadWriteCloser, msg []byte) int {
+	n, err := s.Write(msg)
 	if err != nil {
 		log.Print(err)
-		return
+		return 0
 	}
-	log.Printf("%v", n)
+	return n
 }
 
 func main() {
@@ -47,7 +54,22 @@ func main() {
 		log.Print("No serial ports found.\n")
 	}
 
+	ports := []io.ReadWriteCloser{}
+
+	// Try an open all ports.
 	for _, port := range list {
-		pushMsg(port, strings.Join(flag.Args(), " "))
+		ports = append(ports, openPort(port))
 	}
+
+	if len(ports) == 0 {
+		log.Print("No serial ports could be opened.\n")
+	}
+
+	reader := bufio.NewReader(os.Stdin)
+    for {
+    	msg, _ := reader.ReadString('\n')
+		for _, port := range ports {
+			sendMsg(port, []byte(msg))
+		}
+    }
 }
