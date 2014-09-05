@@ -4,7 +4,7 @@ import (
 	"flag"
 	"github.com/tarm/goserial"
 	"log"
-	// "strings"
+	"strings"
 	"bufio"
 	// "fmt"
 	"os"
@@ -12,7 +12,6 @@ import (
 )
 
 func openPort(p string) io.ReadWriteCloser {
-	// Open the serial port.
 	c := &serial.Config{Name: p, Baud: 9600}
 	s, err := serial.OpenPort(c)
 	if err != nil {
@@ -56,7 +55,7 @@ func main() {
 
 	ports := []io.ReadWriteCloser{}
 
-	// Try an open all ports.
+	// Try and open all ports.
 	for _, port := range list {
 		ports = append(ports, openPort(port))
 	}
@@ -69,7 +68,7 @@ func main() {
     for {
     	msg, _ := reader.ReadString('\n')
 		for _, port := range ports {
-			sendMsg(port, []byte(msg))
+			sendMsg(port, []byte(strings.TrimSpace(msg)))
 		}
     }
 }
