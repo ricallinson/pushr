@@ -8,19 +8,20 @@ import (
 )
 
 func pushMsg(p string, msg string) {
-    // Open the serial port.
-    c := &serial.Config{Name: p, Baud: 9600}
-    s, err := serial.OpenPort(c)
-    if err != nil {
-        log.Print(err)
-        return
-    }
-    // Send the message.
-    n, err := s.Write([]byte(msg))
-    if err != nil {
-        log.Print(err)
-    }
-    log.Printf("%v", n)
+	// Open the serial port.
+	c := &serial.Config{Name: p, Baud: 9600}
+	s, err := serial.OpenPort(c)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	// Send the message.
+	n, err := s.Write([]byte(msg))
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	log.Printf("%v", n)
 }
 
 func main() {
@@ -29,24 +30,24 @@ func main() {
 	var l = flag.Bool("l", false, "list all avliable serial ports")
 	flag.Parse()
 
-	if *l == true {
+	if *l {
 		log.Printf("%v", listSerialPorts())
 		return
 	}
 
-    var list []string
+	var list []string
 
-    if len(*p) > 0 {
-        list = []string{*p}
-    } else {
-        list = listSerialPorts()
-    }
+	if len(*p) > 0 {
+		list = []string{*p}
+	} else {
+		list = listSerialPorts()
+	}
 
-    if len(list) == 0 {
-        log.Print("No serial ports found.\n")
-    }
+	if len(list) == 0 {
+		log.Print("No serial ports found.\n")
+	}
 
-    for _, port := range list {
-        pushMsg(port, strings.Join(flag.Args(), " "))
-    }
+	for _, port := range list {
+		pushMsg(port, strings.Join(flag.Args(), " "))
+	}
 }
