@@ -6,10 +6,18 @@ import (
 	"github.com/tarm/goserial"
 	"log"
 	"strings"
-	// "fmt"
 	"io"
 	"os"
 )
+
+func listPorts(port string) (list []string) {
+    if len(port) > 0 {
+        list = []string{port}
+    } else {
+        list = listSerialPorts()
+    }
+    return list
+}
 
 func openPort(p string) io.ReadWriteCloser {
 	c := &serial.Config{Name: p, Baud: 9600}
@@ -21,13 +29,30 @@ func openPort(p string) io.ReadWriteCloser {
 	return s
 }
 
-func sendMsg(s io.ReadWriteCloser, msg []byte) int {
+func openPorts(list []string) (ports []io.ReadWriteCloser) {
+    for _, port := range list {
+        ports = append(ports, openPort(port))
+    }
+    return ports
+}
+
+func send(s io.ReadWriteCloser, msg []byte) int {
 	n, err := s.Write(msg)
 	if err != nil {
 		log.Print(err)
 		return 0
 	}
 	return n
+}
+
+func listen(ports []io.ReadWriteCloser) {
+    reader := bufio.NewReader(os.Stdin)
+    for {
+        msg, _ := reader.ReadString('\n')
+        for _, port := range ports {
+            send(port, []byte(strings.TrimSpace(msg)))
+        }
+    }
 }
 
 func main() {
@@ -41,36 +66,19 @@ func main() {
 		return
 	}
 
-	var list []string
+	list := listPorts(*p)
 
-	if len(*p) > 0 {
-		list = []string{*p}
-	} else {
-		list = listSerialPorts()
-	}
+    if len(list) == 0 {
+        log.Print("No serial ports found.\n")
+        return
+    }
 
-	if len(list) == 0 {
-		log.Print("No serial ports found.\n")
-		return
-	}
+	ports := openPorts(list)
 
-	ports := []io.ReadWriteCloser{}
+    if len(ports) == 0 {
+        log.Print("No serial ports could be opened.\n")
+        return
+    }
 
-	// Try and open all ports.
-	for _, port := range list {
-		ports = append(ports, openPort(port))
-	}
-
-	if len(ports) == 0 {
-		log.Print("No serial ports could be opened.\n")
-		return
-	}
-
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		msg, _ := reader.ReadString('\n')
-		for _, port := range ports {
-			sendMsg(port, []byte(strings.TrimSpace(msg)))
-		}
-	}
+	listen(ports)
 }
