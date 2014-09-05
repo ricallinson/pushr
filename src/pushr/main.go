@@ -1,14 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"github.com/tarm/goserial"
 	"log"
 	"strings"
-	"bufio"
 	// "fmt"
-	"os"
 	"io"
+	"os"
 )
 
 func openPort(p string) io.ReadWriteCloser {
@@ -65,10 +65,10 @@ func main() {
 	}
 
 	reader := bufio.NewReader(os.Stdin)
-    for {
-    	msg, _ := reader.ReadString('\n')
+	for {
+		msg, _ := reader.ReadString('\n')
 		for _, port := range ports {
 			sendMsg(port, []byte(strings.TrimSpace(msg)))
 		}
-    }
+	}
 }
